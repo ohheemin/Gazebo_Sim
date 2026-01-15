@@ -1,40 +1,17 @@
 // Copyright (c) 2025 Tampere University, Autonomous Mobile Machines
-//
 // Licensed under the MIT License.
-// 
-// Permission is hereby granted, free of charge, to any person obtaining a copy
-// of this software and associated documentation files (the "Software"), to deal
-// in the Software without restriction, including without limitation the rights
-// to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-// copies of the Software, and to permit persons to whom the Software is
-// furnished to do so, subject to the following conditions:
-
-// The above copyright notice and this permission notice shall be included in all
-// copies or substantial portions of the Software.
-//
-// THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
-// IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
-// FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
-// AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
-// LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
-// OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-// SOFTWARE.
-
 #pragma once
-
 #include <string>
-
+#include <array>
 #include <Eigen/Eigen>
 #include <controller_interface/controller_interface.hpp>
 #include <rclcpp/rclcpp.hpp>
+#include <sensor_msgs/msg/joint_state.hpp>
 
 using CallbackReturn = rclcpp_lifecycle::node_interfaces::LifecycleNodeInterface::CallbackReturn;
 
 namespace arm_controllers {
 
-/**
- * The joint position example controller moves in a periodic movement.
- */
 class JointPositionExampleController : public controller_interface::ControllerInterface {
  public:
   [[nodiscard]] controller_interface::InterfaceConfiguration command_interface_configuration()
@@ -50,14 +27,19 @@ class JointPositionExampleController : public controller_interface::ControllerIn
  private:
   bool is_gazebo_{false};
   std::string robot_description_;
-  const int num_joints = 7;
-  std::array<double, 7> initial_q_{0, 0, 0, 0, 0, 0, 0};
+  
+  const int num_joints = 7;  // arm joints only
+  std::array<double, 9> initial_q_{0, 0, 0, 0, 0, 0, 0, 0, 0};  // 7 arm + 2 finger
+  std::array<double, 9> target_q_{0, 0, 0, 0, 0, 0, 0, 0, 0};   // 7 arm + 2 finger
+  
   const double trajectory_period{0.001};
-  double elapsed_time_ = 0.0;
   const std::string k_HW_IF_INITIAL_POSITION = "initial_joint_position";
-
   bool initialization_flag_{true};
   rclcpp::Time start_time_;
+
+  // Joint command subscriber
+  rclcpp::Subscription<sensor_msgs::msg::JointState>::SharedPtr joint_command_sub_;
+  void joint_command_callback(const sensor_msgs::msg::JointState::SharedPtr msg);
 };
 
 }  // namespace arm_controllers

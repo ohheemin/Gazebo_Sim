@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<robot name="tm12">
+    <group name="tmr_arm">
+        <chain base_link="base" tip_link="flange"/>
+    </group>
+    <group_state name="home" group="tmr_arm">
+        <joint name="joint_1" value="0"/>
+        <joint name="joint_2" value="0"/>
+        <joint name="joint_3" value="0"/>
+        <joint name="joint_4" value="0"/>
+        <joint name="joint_5" value="0"/>
+        <joint name="joint_6" value="0"/>
+    </group_state>
+    <group_state name="ready1" group="tmr_arm">
+        <joint name="joint_1" value="0"/>
+        <joint name="joint_2" value="0"/>
+        <joint name="joint_3" value="1.5708"/>
+        <joint name="joint_4" value="0"/>
+        <joint name="joint_5" value="1.5708"/>
+        <joint name="joint_6" value="0"/>
+    </group_state>
+    <group_state name="ready2" group="tmr_arm">
+        <joint name="joint_1" value="0"/>
+        <joint name="joint_2" value="0"/>
+        <joint name="joint_3" value="1.5708"/>
+        <joint name="joint_4" value="-1.5708"/>
+        <joint name="joint_5" value="1.5708"/>
+        <joint name="joint_6" value="0"/>
+    </group_state>
+    <group_state name="ready3" group="tmr_arm">
+        <joint name="joint_1" value="0"/>
+        <joint name="joint_2" value="0"/>
+        <joint name="joint_3" value="1.5708"/>
+        <joint name="joint_4" value="1.5708"/>
+        <joint name="joint_5" value="-1.5708"/>
+        <joint name="joint_6" value="0"/>
+    </group_state>
+    <virtual_joint name="FixedBase" type="fixed" parent_frame="world" child_link="base"/>
+    <disable_collisions link1="link_0" link2="link_1" reason="Adjacent"/>
+    <disable_collisions link1="link_0" link2="link_2" reason="Never"/>
+    <disable_collisions link1="link_0" link2="link_4" reason="Never"/>
+    <disable_collisions link1="link_1" link2="link_2" reason="Adjacent"/>
+    <disable_collisions link1="link_1" link2="link_4" reason="Never"/>
+    <disable_collisions link1="link_1" link2="link_5" reason="Never"/>
+    <disable_collisions link1="link_2" link2="link_3" reason="Adjacent"/>
+    <disable_collisions link1="link_3" link2="link_4" reason="Adjacent"/>
+    <disable_collisions link1="link_4" link2="link_5" reason="Adjacent"/>
+    <disable_collisions link1="link_5" link2="link_6" reason="Adjacent"/>
+</robot>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

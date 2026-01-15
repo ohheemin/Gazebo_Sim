@@ -1,0 +1,131 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="panda">
+  <!-- ========================================= -->
+  <!-- Planning Groups 정의 -->
+  <!-- ========================================= -->
+  
+  <!-- Arm 그룹: panda_link0부터 panda_link8까지 (7 DOF) -->
+  <group name="panda_arm">
+    <chain base_link="panda_link0" tip_link="panda_link8"/>
+  </group>
+  
+  <!-- Hand 그룹: 그리퍼 finger joints만 포함 -->
+  <group name="hand">
+    <link name="panda_hand"/>
+    <link name="panda_leftfinger"/>
+    <link name="panda_rightfinger"/>
+    <joint name="panda_finger_joint1"/>
+    <joint name="panda_finger_joint2"/>
+  </group>
+  
+  <!-- Arm + Hand 통합 그룹 -->
+  <group name="panda_arm_hand">
+    <group name="panda_arm"/>
+    <group name="hand"/>
+  </group>
+
+  <!-- ========================================= -->
+  <!-- Group States: 사전 정의된 자세 -->
+  <!-- ========================================= -->
+  
+  <group_state group="panda_arm" name="ready">
+    <joint name="panda_joint1" value="0"/>
+    <joint name="panda_joint2" value="-0.785"/>
+    <joint name="panda_joint3" value="0"/>
+    <joint name="panda_joint4" value="-2.356"/>
+    <joint name="panda_joint5" value="0"/>
+    <joint name="panda_joint6" value="1.571"/>
+    <joint name="panda_joint7" value="0.785"/>
+  </group_state>
+  
+  <group_state group="panda_arm" name="extended">
+    <joint name="panda_joint1" value="0"/>
+    <joint name="panda_joint2" value="0"/>
+    <joint name="panda_joint3" value="0"/>
+    <joint name="panda_joint4" value="0"/>
+    <joint name="panda_joint5" value="0"/>
+    <joint name="panda_joint6" value="1.571"/>
+    <joint name="panda_joint7" value="0.785"/>
+  </group_state>
+  
+  <group_state group="panda_arm" name="transport">
+    <joint name="panda_joint1" value="0"/>
+    <joint name="panda_joint2" value="-0.5599"/>
+    <joint name="panda_joint3" value="0"/>
+    <joint name="panda_joint4" value="-2.97"/>
+    <joint name="panda_joint5" value="0"/>
+    <joint name="panda_joint6" value="0"/>
+    <joint name="panda_joint7" value="0.785"/>
+  </group_state>
+  
+  <group_state group="hand" name="open">
+    <joint name="panda_finger_joint1" value="0.04"/>
+    <joint name="panda_finger_joint2" value="0.04"/>
+  </group_state>
+  
+  <group_state group="hand" name="close">
+    <joint name="panda_finger_joint1" value="0"/>
+    <joint name="panda_finger_joint2" value="0"/>
+  </group_state>
+
+  <!-- ========================================= -->
+  <!-- End Effector 정의 -->
+  <!-- ========================================= -->
+  
+  <end_effector group="hand" name="hand" parent_group="panda_arm" parent_link="panda_link8"/>
+
+  <!-- ========================================= -->
+  <!-- Virtual Joint 제거됨! -->
+  <!-- floating 타입은 불필요한 6 DOF를 추가하므로 제거 -->
+  <!-- ========================================= -->
+
+  <!-- ========================================= -->
+  <!-- Collision 비활성화 -->
+  <!-- ========================================= -->
+  
+  <!-- Arm 링크 간 충돌 비활성화 -->
+  <disable_collisions link1="panda_link0" link2="panda_link1" reason="Adjacent"/>
+  <disable_collisions link1="panda_link0" link2="panda_link2" reason="Never"/>
+  <disable_collisions link1="panda_link0" link2="panda_link3" reason="Never"/>
+  <disable_collisions link1="panda_link0" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_link1" link2="panda_link2" reason="Adjacent"/>
+  <disable_collisions link1="panda_link1" link2="panda_link3" reason="Never"/>
+  <disable_collisions link1="panda_link1" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_link2" link2="panda_link3" reason="Adjacent"/>
+  <disable_collisions link1="panda_link2" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_link2" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_link3" link2="panda_link4" reason="Adjacent"/>
+  <disable_collisions link1="panda_link3" link2="panda_link5" reason="Never"/>
+  <disable_collisions link1="panda_link3" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_link3" link2="panda_link7" reason="Never"/>
+  <disable_collisions link1="panda_link4" link2="panda_link5" reason="Adjacent"/>
+  <disable_collisions link1="panda_link4" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_link4" link2="panda_link7" reason="Never"/>
+  <disable_collisions link1="panda_link5" link2="panda_link6" reason="Adjacent"/>
+  <disable_collisions link1="panda_link6" link2="panda_link7" reason="Adjacent"/>
+  <disable_collisions link1="panda_link6" link2="panda_link8" reason="Never"/>
+  <disable_collisions link1="panda_link7" link2="panda_link8" reason="Adjacent"/>
+  
+  <!-- Hand와 Arm 간 충돌 비활성화 -->
+  <disable_collisions link1="panda_hand" link2="panda_link3" reason="Never"/>
+  <disable_collisions link1="panda_hand" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_hand" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_hand" link2="panda_link7" reason="Adjacent"/>
+  <disable_collisions link1="panda_hand" link2="panda_link8" reason="Adjacent"/>
+  
+  <!-- Finger와 Arm 간 충돌 비활성화 -->
+  <disable_collisions link1="panda_leftfinger" link2="panda_link3" reason="Never"/>
+  <disable_collisions link1="panda_leftfinger" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_leftfinger" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_leftfinger" link2="panda_link7" reason="Never"/>
+  <disable_collisions link1="panda_rightfinger" link2="panda_link3" reason="Never"/>
+  <disable_collisions link1="panda_rightfinger" link2="panda_link4" reason="Never"/>
+  <disable_collisions link1="panda_rightfinger" link2="panda_link6" reason="Never"/>
+  <disable_collisions link1="panda_rightfinger" link2="panda_link7" reason="Never"/>
+  
+  <!-- Hand 내부 충돌 비활성화 -->
+  <disable_collisions link1="panda_hand" link2="panda_leftfinger" reason="Adjacent"/>
+  <disable_collisions link1="panda_hand" link2="panda_rightfinger" reason="Adjacent"/>
+  <disable_collisions link1="panda_leftfinger" link2="panda_rightfinger" reason="Default"/>
+  
+</robot>

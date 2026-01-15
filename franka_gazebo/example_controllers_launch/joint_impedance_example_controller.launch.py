@@ -21,8 +21,7 @@
 # SOFTWARE.
 
 from launch import LaunchDescription
-from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, RegisterEventHandler
-from launch.conditions import IfCondition, UnlessCondition
+from launch.actions import DeclareLaunchArgument, IncludeLaunchDescription, OpaqueFunction, RegisterEventHandler, SetEnvironmentVariable
 from launch.event_handlers import OnProcessExit
 from launch.launch_description_sources import PythonLaunchDescriptionSource
 from launch.substitutions import Command, FindExecutable, LaunchConfiguration, PathJoinSubstitution
@@ -30,15 +29,19 @@ from launch_ros.actions import Node
 from launch_ros.substitutions import FindPackageShare
 
 def launch_setup(context, *args, **kwargs):
+    # -----------------------------
     # Initialize Arguments
+    # -----------------------------
     runtime_config_package = LaunchConfiguration("runtime_config_package")
     controllers_file = LaunchConfiguration("controllers_file")
     description_package = LaunchConfiguration("description_package")
     description_file = LaunchConfiguration("description_file")
     joint_impedance_example_controller_spawner = LaunchConfiguration("joint_impedance_example_controller")
+
     initial_joint_controllers = PathJoinSubstitution(
         [FindPackageShare(runtime_config_package), "config", controllers_file]
     )
+
     robot_description_content = Command(
         [
             PathJoinSubstitution([FindExecutable(name="xacro")]),
@@ -46,6 +49,8 @@ def launch_setup(context, *args, **kwargs):
             PathJoinSubstitution(
                 [FindPackageShare(description_package), "urdf", description_file]
             ),
+            " ",
+            "hand:=true",  # 그리퍼 추가
             " ",
             "sim_ignition:=true",
             " ",
@@ -55,7 +60,17 @@ def launch_setup(context, *args, **kwargs):
     )
     robot_description = {"robot_description": robot_description_content}
 
+    # -----------------------------
+    # Environment: GAZEBO_MODEL_PATH
+    # -----------------------------
+    set_gazebo_model_path = SetEnvironmentVariable(
+        name="GAZEBO_MODEL_PATH",
+        value=PathJoinSubstitution([FindPackageShare("franka_description")])
+    )
+
+    # -----------------------------
     # Nodes
+    # -----------------------------
     robot_state_publisher_node = Node(
         package="robot_state_publisher",
         executable="robot_state_publisher",
@@ -82,7 +97,9 @@ def launch_setup(context, *args, **kwargs):
         arguments=["joint_impedance_example_controller", "--controller-manager", "/controller_manager"],
     )
 
-    # GZ nodes
+    # -----------------------------
+    # Ignition Gazebo Nodes
+    # -----------------------------
     gz_spawn_entity = Node(
         package="ros_gz_sim",
         executable="create",
@@ -104,7 +121,9 @@ def launch_setup(context, *args, **kwargs):
         launch_arguments={"gz_args": " -r -v 1 empty.sdf"}.items(),
     )
 
+    # -----------------------------
     # Event handlers to ensure controller_manager is ready before spawners
+    # -----------------------------
     delay_joint_state_broadcaster_spawner = RegisterEventHandler(
         event_handler=OnProcessExit(
             target_action=controller_manager_node,
@@ -133,7 +152,11 @@ def launch_setup(context, *args, **kwargs):
         )
     )
 
+    # -----------------------------
+    # Launch Order
+    # -----------------------------
     nodes_to_start = [
+        set_gazebo_model_path,
         robot_state_publisher_node,
         controller_manager_node,
         delay_joint_state_broadcaster_spawner,
@@ -143,6 +166,7 @@ def launch_setup(context, *args, **kwargs):
     ]
 
     return nodes_to_start
+
 
 def generate_launch_description():
     declared_arguments = [
@@ -154,7 +178,7 @@ def generate_launch_description():
         ),
         DeclareLaunchArgument(
             "controllers_file",
-            default_value="franka_controllers.yaml",
+            default_value="ros2_controllers.yaml",
             description="YAML file with the controllers configuration.",
         ),
         DeclareLaunchArgument(
@@ -181,3 +205,4 @@ def generate_launch_description():
     ]
 
     return LaunchDescription(declared_arguments + [OpaqueFunction(function=launch_setup)])
+

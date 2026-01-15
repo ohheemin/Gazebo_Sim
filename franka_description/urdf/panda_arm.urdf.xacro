@@ -1,7 +1,7 @@
 <?xml version='1.0' encoding='utf-8'?>
 <robot xmlns:xacro="http://www.ros.org/wiki/xacro" name="panda">
   <xacro:arg name="arm_id" default="panda" /> <!-- Name of this panda -->
-  <xacro:arg name="hand" default="false" /> <!-- Should a franka_gripper be mounted at the flange?" -->
+  <xacro:arg name="hand" default="true" /> <!-- Should a franka_gripper be mounted at the flange?" -->
   <xacro:arg name="sim_ignition" default="false" />
   <xacro:arg name="use_fake_hardware" default="false" />
   <xacro:arg name="simulation_controllers"
@@ -11,9 +11,10 @@
     default="$(find franka_description)/config/initial_positions.yaml" />
   <!-- convert to property to use substitution in function -->
   <xacro:property name="initial_positions_file" default="$(arg initial_positions_file)" />
-
+  
   <link name="world">
-      </link>
+  </link>
+  
   <joint name="world_base" type="fixed">
     <origin
       xyz="0 0 0"
@@ -23,6 +24,7 @@
     <child
       link="base" />
   </joint>  
+  
   <!-- box shaped table as base -->
   <link name="base">
     <visual>
@@ -47,7 +49,7 @@
         izz="1e-3" />
     </inertial>
   </link>
-
+  
   <!-- Franka arm -->
   <xacro:include filename="$(find franka_description)/urdf/panda_arm.xacro" />
   <xacro:panda_arm arm_id="$(arg arm_id)" sim_ignition="$(arg sim_ignition)" connected_to="base" xyz="0 0 1"
@@ -59,7 +61,8 @@
     <xacro:hand ns="$(arg arm_id)" rpy="0 0 ${-pi/4}" connected_to="$(arg arm_id)_link8"
       safety_distance="0.03" />
   </xacro:if>
-
+  
+  <!-- Arm ros2_control -->
   <xacro:include
     filename="$(find franka_description)/urdf/ros2_control/panda_arm.ros2_control.xacro" />
   <xacro:panda_arm_ros2_control
@@ -67,7 +70,14 @@
     sim_ignition="$(arg sim_ignition)"
     use_fake_hardware="$(arg use_fake_hardware)"
     initial_positions="${xacro.load_yaml(initial_positions_file)}" />
-
+  
+  <!-- Hand ros2_control -->
+  <xacro:if value="$(arg hand)">
+  <xacro:include filename="$(find franka_description)/urdf/panda_hand.ros2_control.xacro" />
+  <xacro:panda_hand_ros2_control 
+    name="$(arg arm_id)_hand"
+    ros2_control_hardware_type="gz_sim" />  </xacro:if>
+  
   <xacro:if value="$(arg sim_ignition)">
     <!-- Gazebo plugins -->
     <gazebo reference="base">

@@ -14,6 +14,12 @@ find_package(kdl_parser REQUIRED)
 find_package(pluginlib REQUIRED)
 find_package(rclcpp_lifecycle REQUIRED)
 find_package(realtime_tools REQUIRED)
+find_package(sensor_msgs REQUIRED)
+find_package(moveit_ros_planning_interface REQUIRED)
+find_package(moveit_msgs REQUIRED)
+find_package(geometry_msgs REQUIRED)
+find_package(tf2 REQUIRED)
+find_package(tf2_geometry_msgs REQUIRED)
 
 add_library(${PROJECT_NAME} SHARED
   src/joint_velocity_example_controller.cpp
@@ -35,12 +41,32 @@ ament_target_dependencies(${PROJECT_NAME}
   urdf
   control_msgs
   kdl_parser
+  pluginlib
+  sensor_msgs
+)
+
+# MoveIt Pick & Place Node
+add_executable(moveit_pick_place_node src/moveit_pick_place_node.cpp)
+
+ament_target_dependencies(moveit_pick_place_node
+  rclcpp
+  moveit_ros_planning_interface
+  geometry_msgs
+  sensor_msgs
+  tf2
+  tf2_geometry_msgs
+  moveit_msgs
 )
 
 install(TARGETS ${PROJECT_NAME}
   ARCHIVE DESTINATION lib
   LIBRARY DESTINATION lib
   RUNTIME DESTINATION bin
+)
+
+# Install MoveIt node
+install(TARGETS moveit_pick_place_node
+  DESTINATION lib/${PROJECT_NAME}
 )
 
 install(DIRECTORY include/
@@ -58,10 +84,13 @@ ament_export_dependencies(
   rclcpp
   rclcpp_lifecycle
   realtime_tools
+  sensor_msgs
 )
+
 ament_export_include_directories(
   include
 )
+
 ament_export_libraries(
   ${PROJECT_NAME}
 )
